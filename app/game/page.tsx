@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { questions } from "../question";
 // 注意：虽然导入了 Image 组件，但在下面的代码中为了演示方便使用了 <div> 占位。
 // 如果你有真实的图片资源，请取消注释相关代码并使用 <Image /> 组件。
@@ -24,12 +24,62 @@ type GameState = "MAP" | "QUIZ" | "VICTORY";
 function MapScreen({
   onStartLevel,
   unlockedLevel,
+  initialScroll,
+  onSaveScroll,
 }: {
   onStartLevel: (levelId: number) => void;
   unlockedLevel: number;
+  initialScroll: number | null;
+  onSaveScroll: (scroll: number) => void;
 }) {
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
   // --- 常量配置 ---
   const QUESTIONS_PER_LEVEL = 1; // 每个关卡的题目数量
+
+  // 保存滚动位置
+  useEffect(() => {
+    return () => {
+      if (scrollContainerRef.current) {
+        onSaveScroll(scrollContainerRef.current.scrollTop);
+      }
+    };
+  }, [onSaveScroll]);
+
+  // 自动滚动定位
+  useEffect(() => {
+    // 稍微延迟一下，确保布局渲染完成
+    const timer = setTimeout(() => {
+      if (scrollContainerRef.current) {
+        const container = scrollContainerRef.current;
+
+        // 如果有保存的滚动位置，优先恢复
+        if (initialScroll !== null) {
+          container.scrollTo({
+            top: initialScroll,
+            behavior: "auto",
+          });
+          return;
+        }
+
+        const containerH = container.clientHeight;
+        const contentH = container.scrollHeight;
+
+        // 计算目标关卡的中心位置距离底部的距离
+        const targetIndex = unlockedLevel - 1;
+        const centerFromBottom = targetIndex * 120 + 90;
+
+        // 目标滚动位置：让关卡中心处于视口中间
+        const targetScrollTop = contentH - centerFromBottom - containerH / 2;
+
+        container.scrollTo({
+          top: targetScrollTop,
+          behavior: "auto",
+        });
+      }
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [unlockedLevel, initialScroll]);
 
   // 根据题目总数计算生成的关卡数据
   const levels = Array.from(
@@ -37,14 +87,17 @@ function MapScreen({
     (_, i) => ({
       id: i + 1,
       title: `关卡 ${i + 1}`,
-      top: `${80 - i * 20}%`,
+      bottom: `${i * 120 + 50}px`,
     })
   );
+
+  // 计算容器需要的总高度，确保足够滚动
+  const containerHeight = levels.length * 120 + 200;
 
   return (
     <div className="flex flex-col h-screen bg-[#FFD057] text-[#5C3D2E] font-bold relative overflow-hidden">
       {/* 顶部状态栏 */}
-      <div className="flex justify-between items-center p-4 bg-[#FFD057] z-10">
+      <div className="flex justify-between items-center p-4 bg-[#FFD057] z-10 relative shadow-sm">
         <div className="flex items-center gap-2 bg-white/80 px-3 py-1 rounded-full">
           {/* [素材替换] 萝卜图标 */}
           🥕 <span className="text-lg">0</span>
@@ -56,98 +109,107 @@ function MapScreen({
       </div>
 
       {/* 当前关卡标题横幅 */}
-      <div className="px-6 py-2 bg-[#FF9EAA] mx-4 rounded-xl mb-4 text-white text-center shadow-md border-b-4 border-[#E68A96]">
-        当前解锁: 第 {unlockedLevel} 关 / 共 10 关
+      <div className="px-6 py-2 bg-[#FF9EAA] mx-4 rounded-xl mb-4 text-white text-center shadow-md border-b-4 border-[#E68A96] z-10 relative">
+        当前解锁: 第 {unlockedLevel} 关 / 共 {levels.length} 关
       </div>
 
-      {/* 地图路径区域 */}
-      <div className="flex-1 relative w-full max-w-md mx-auto">
-        {/* [素材替换] S型路径背景 - 可以替换为一张完整的地图背景图 */}
-        <svg
-          className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-30"
-          viewBox="0 0 100 100"
-          preserveAspectRatio="none"
+      {/* 地图路径区域 (可滚动) */}
+      <div
+        ref={scrollContainerRef}
+        className="flex-1 relative w-full max-w-md mx-auto overflow-y-auto scrollbar-hide"
+      >
+        {/* 内部容器，高度动态计算 */}
+        <div
+          className="relative w-full"
+          style={{ height: `${containerHeight}px` }}
         >
-          <path
-            d="M50,100 C50,80 20,70 20,50 C20,30 80,30 80,10"
-            stroke="white"
-            strokeWidth="10"
-            fill="none"
-            strokeDasharray="10,10"
-          />
-        </svg>
+          {/* [素材替换] S型路径背景 - 可以替换为一张完整的地图背景图 */}
+          <svg
+            className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-30"
+            preserveAspectRatio="none"
+            viewBox="0 0 100 100"
+          >
+            <path
+              d="M50,100 C50,80 20,70 20,50 C20,30 80,30 80,10"
+              stroke="white"
+              strokeWidth="10"
+              fill="none"
+              strokeDasharray="10,10"
+            />
+          </svg>
 
-        {/* 渲染关卡节点 */}
-        {levels.map((level, index) => {
-          const isLeft = index % 2 === 0;
-          const isUnlocked = level.id <= unlockedLevel;
-          const isCurrent = level.id === unlockedLevel;
+          {/* 渲染关卡节点 */}
+          {levels.map((level, index) => {
+            const isLeft = index % 2 === 0;
+            const isUnlocked = level.id <= unlockedLevel;
+            const isCurrent = level.id === unlockedLevel;
 
-          return (
-            <div
-              key={level.id}
-              className={`absolute transform -translate-x-1/2 transition-transform ${
-                isUnlocked
-                  ? "cursor-pointer hover:scale-105 active:scale-95"
-                  : ""
-              }`}
-              style={{
-                top: level.top,
-                left: isLeft ? "30%" : "70%",
-              }}
-              onClick={() => {
-                if (isUnlocked) {
-                  onStartLevel(level.id);
-                }
-              }}
-            >
+            return (
               <div
-                className={`w-20 h-20 rounded-full flex items-center justify-center border-b-4 shadow-lg relative transition-colors
+                key={level.id}
+                className={`absolute transform -translate-x-1/2 transition-transform ${
+                  isUnlocked
+                    ? "cursor-pointer hover:scale-105 active:scale-95"
+                    : ""
+                }`}
+                style={{
+                  bottom: level.bottom,
+                  left: isLeft ? "30%" : "70%",
+                }}
+                onClick={() => {
+                  if (isUnlocked) {
+                    onStartLevel(level.id);
+                  }
+                }}
+              >
+                <div
+                  className={`w-20 h-20 rounded-full flex items-center justify-center border-b-4 shadow-lg relative transition-colors
                 ${
                   isUnlocked
                     ? "bg-[#6CE548] border-[#58C236]" // 已解锁（绿色）
                     : "bg-gray-300 border-gray-400 cursor-not-allowed opacity-80" // 未解锁（灰色）
                 }`}
-              >
-                {/* 关卡内容 */}
-                {isUnlocked ? (
-                  // [素材替换] 关卡图标 (如乌萨奇头像)
-                  <span className="text-4xl animate-pulse">
-                    <Image
-                      src="/images/wsq-1.png"
-                      alt="乌萨奇"
-                      width={100}
-                      height={100}
-                    />
-                  </span>
-                ) : (
-                  // [素材替换] 锁定状态图标
-                  <div className="text-2xl opacity-50">🔒</div>
-                )}
+                >
+                  {/* 关卡内容 */}
+                  {isUnlocked ? (
+                    // [素材替换] 关卡图标 (如乌萨奇头像)
+                    <span className="text-4xl animate-pulse">
+                      <Image
+                        src="/images/wsq-1.png"
+                        alt="乌萨奇"
+                        width={100}
+                        height={100}
+                      />
+                    </span>
+                  ) : (
+                    // [素材替换] 锁定状态图标
+                    <div className="text-2xl opacity-50">🔒</div>
+                  )}
 
-                {/* 当前关卡指示器 (皇冠/铅笔等) */}
-                {isCurrent && (
-                  <div className="absolute -top-2 -right-2 text-xl animate-bounce">
-                    ✏️
-                  </div>
-                )}
-              </div>
+                  {/* 当前关卡指示器 (皇冠/铅笔等) */}
+                  {isCurrent && (
+                    <div className="absolute -top-2 -right-2 text-xl animate-bounce">
+                      ✏️
+                    </div>
+                  )}
+                </div>
 
-              {/* 关卡名称标签 */}
-              <div
-                className={`mt-2 px-3 py-1 rounded-lg text-xs text-center font-bold shadow-sm border-b-2 whitespace-nowrap
+                {/* 关卡名称标签 */}
+                <div
+                  className={`mt-2 px-3 py-1 rounded-lg text-xs text-center font-bold shadow-sm border-b-2 whitespace-nowrap
                 ${
                   isUnlocked
                     ? "bg-white border-gray-200 text-[#5C3D2E]"
                     : "bg-gray-200 border-gray-300 text-gray-500"
                 }
               `}
-              >
-                {level.title}
+                >
+                  {level.title}
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
 
       {/* 底部导航栏 */}
@@ -181,7 +243,8 @@ function QuizScreen({
   onBack: () => void;
 }) {
   const [currentQIndex, setCurrentQIndex] = useState(0);
-  const [selectedOption, setSelectedOption] = useState<number | null>(null);
+  // 修改为数组以支持多选，存储选中项的索引
+  const [selectedIndices, setSelectedIndices] = useState<number[]>([]);
   const [showFeedback, setShowFeedback] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -194,14 +257,35 @@ function QuizScreen({
     return <div className="p-8 text-center">该关卡暂无题目！</div>;
   }
 
+  // 判断是否为多选
+  const isMultiSelect = Array.isArray(currentQuestion.answer.correct);
+
   const progress = (currentQIndex / levelQuestions.length) * 100;
 
   const handleCheck = () => {
-    if (selectedOption === null) return;
+    if (selectedIndices.length === 0) return;
 
-    const correctLabel = currentQuestion.answer.correct;
-    const selectedLabel = currentQuestion.options[selectedOption].label;
-    const correct = correctLabel === selectedLabel;
+    const correctVal = currentQuestion.answer.correct;
+    let correct = false;
+
+    if (Array.isArray(correctVal)) {
+      // 多选逻辑
+      const selectedLabels = selectedIndices.map(
+        (i) => currentQuestion.options[i].label
+      );
+      // 比较两个数组包含的元素是否一致（忽略顺序）
+      if (correctVal.length === selectedLabels.length) {
+        const sortedCorrect = [...correctVal].sort();
+        const sortedSelected = [...selectedLabels].sort();
+        correct = sortedCorrect.every(
+          (val, index) => val === sortedSelected[index]
+        );
+      }
+    } else {
+      // 单选逻辑
+      const selectedLabel = currentQuestion.options[selectedIndices[0]].label;
+      correct = correctVal === selectedLabel;
+    }
 
     setIsCorrect(correct);
     setShowFeedback(true);
@@ -227,7 +311,7 @@ function QuizScreen({
     if (currentQIndex < levelQuestions.length - 1) {
       // 切换下一题时重置状态
       setCurrentQIndex((prev) => prev + 1);
-      setSelectedOption(null);
+      setSelectedIndices([]); // 重置选项
       setShowFeedback(false);
       setIsCorrect(false);
       // 停止并重置视频/音频
@@ -246,9 +330,45 @@ function QuizScreen({
     }
   };
 
+  const handleRetry = () => {
+    // 重置当前题目状态，允许重新作答
+    setSelectedIndices([]);
+    setShowFeedback(false);
+    setIsCorrect(false);
+    // 停止并重置视频/音频
+    if (answerVideoRef.current) {
+      answerVideoRef.current.pause();
+      answerVideoRef.current.currentTime = 0;
+      answerVideoRef.current.src = "";
+    }
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      audioRef.current.src = "";
+    }
+  };
+
   const playAudio = () => {
     if (currentQuestion.question.audio && audioRef.current) {
       audioRef.current.play();
+    }
+  };
+
+  const handleOptionClick = (idx: number) => {
+    if (showFeedback) return;
+
+    if (isMultiSelect) {
+      // 多选：切换选中状态
+      setSelectedIndices((prev) => {
+        if (prev.includes(idx)) {
+          return prev.filter((i) => i !== idx);
+        } else {
+          return [...prev, idx];
+        }
+      });
+    } else {
+      // 单选：直接选中
+      setSelectedIndices([idx]);
     }
   };
 
@@ -275,7 +395,7 @@ function QuizScreen({
       {/* 题目内容区域 */}
       <div className="flex-1 overflow-y-auto px-4 pb-32">
         <h2 className="text-2xl font-bold mb-6 mt-2 text-left">
-          请选择正确的答案
+          {isMultiSelect ? "请选择所有正确的答案" : "请选择正确的答案"}
         </h2>
 
         {/* 角色 & 对话气泡 */}
@@ -293,6 +413,12 @@ function QuizScreen({
             <div className="border-2 border-gray-200 p-4 rounded-xl rounded-tl-none relative bg-white shadow-sm">
               <p className="text-lg font-medium">
                 {currentQuestion.question.text}
+                {/* 提示用户多选 */}
+                {isMultiSelect && (
+                  <span className="text-sm text-[#FF6B6B] ml-2 font-black whitespace-nowrap">
+                    【多选题】
+                  </span>
+                )}
               </p>
 
               {/* 音频播放按钮 */}
@@ -333,16 +459,24 @@ function QuizScreen({
           }`}
         >
           {currentQuestion.options.map((opt, idx) => {
-            const isSelected = selectedOption === idx;
+            const isSelected = selectedIndices.includes(idx);
             // 只有在显示反馈时才展示对错颜色
             let borderColor = "border-gray-200";
             let bgColor = "bg-white";
 
             if (showFeedback) {
-              if (opt.label === currentQuestion.answer.correct) {
+              const correctVal = currentQuestion.answer.correct;
+              const isCorrectOption = Array.isArray(correctVal)
+                ? correctVal.includes(opt.label)
+                : correctVal === opt.label;
+
+              if (isCorrectOption) {
+                // 正确答案显示绿色
                 borderColor = "border-[#58CC02]";
                 bgColor = "bg-[#D7FFB8]";
-              } else if (isSelected && !isCorrect) {
+              } else if (isSelected && !isCorrectOption) {
+                // 选错的显示红色 (如果这是用户选的且不是正确答案)
+                // 注意：这里逻辑是：只要用户选了错的，就标红。
                 borderColor = "border-[#FF4B4B]";
                 bgColor = "bg-[#FFDFE0]";
               }
@@ -354,7 +488,7 @@ function QuizScreen({
             return (
               <button
                 key={idx}
-                onClick={() => !showFeedback && setSelectedOption(idx)}
+                onClick={() => handleOptionClick(idx)}
                 className={`
                   p-4 rounded-xl border-2 border-b-4 text-left transition-all h-full flex flex-col justify-center
                   ${borderColor} ${bgColor}
@@ -423,7 +557,10 @@ function QuizScreen({
                   <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center border-2 border-[#FF4B4B]">
                     ✕
                   </div>
-                  正确答案: {currentQuestion.answer.correct}
+                  正确答案:{" "}
+                  {Array.isArray(currentQuestion.answer.correct)
+                    ? currentQuestion.answer.correct.join("、")
+                    : currentQuestion.answer.correct}
                 </>
               )}
             </div>
@@ -471,8 +608,10 @@ function QuizScreen({
         )}
 
         <button
-          onClick={showFeedback ? handleNext : handleCheck}
-          disabled={!showFeedback && selectedOption === null}
+          onClick={
+            showFeedback ? (isCorrect ? handleNext : handleRetry) : handleCheck
+          }
+          disabled={!showFeedback && selectedIndices.length === 0}
           className={`
              w-full py-3 rounded-xl font-bold text-lg border-b-4 uppercase tracking-widest transition-colors
              ${
@@ -480,13 +619,13 @@ function QuizScreen({
                  ? isCorrect
                    ? "bg-[#58CC02] text-white border-[#46A302] hover:bg-[#46A302]"
                    : "bg-[#FF4B4B] text-white border-[#EA2B2B] hover:bg-[#EA2B2B]"
-                 : selectedOption !== null
+                 : selectedIndices.length > 0
                  ? "bg-[#58CC02] text-white border-[#46A302] hover:bg-[#46A302]"
                  : "bg-gray-200 text-gray-400 border-gray-300"
              }
            `}
         >
-          {showFeedback ? "继续" : "检查"}
+          {showFeedback ? (isCorrect ? "继续" : "重试") : "检查"}
         </button>
       </div>
     </div>
@@ -505,7 +644,11 @@ function VictoryScreen({ onContinue }: { onContinue: () => void }) {
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-[#FFD057] text-[#5C3D2E] p-8 text-center">
       {/* [素材替换] 胜利动画 */}
-      <div className="text-6xl mb-8 animate-bounce">🎉 🐰 🎉</div>
+      <div className="text-6xl mb-8 animate-bounce flex items-center">
+        🎉{" "}
+        <Image src="/images/wsq-1.png" alt="乌萨奇" width={100} height={100} />{" "}
+        🎉
+      </div>
 
       <h1 className="text-3xl font-bold text-[#FF9600] mb-4">关卡完成！</h1>
 
@@ -542,6 +685,9 @@ export default function GamePage() {
   // 默认只解锁第 1 关
   const [maxUnlockedLevel, setMaxUnlockedLevel] = useState(1);
   const [currentPlayingLevel, setCurrentPlayingLevel] = useState(1);
+  // 保存地图滚动位置，默认 null
+  const [mapScroll, setMapScroll] = useState<number | null>(null);
+
   const QUESTIONS_PER_LEVEL = 1; // 需与 MapScreen 中保持一致，建议提取为公共常量
 
   const startLevel = (levelId: number) => {
@@ -557,6 +703,8 @@ export default function GamePage() {
       const totalLevels = Math.ceil(questions.length / QUESTIONS_PER_LEVEL);
       if (maxUnlockedLevel < totalLevels) {
         setMaxUnlockedLevel((prev) => prev + 1);
+        // 解锁新关卡时，重置滚动记录，让地图自动滚动到最新关卡
+        setMapScroll(null);
       }
     }
   };
@@ -575,7 +723,12 @@ export default function GamePage() {
   return (
     <main className="min-h-screen bg-zinc-50 sm:max-w-md sm:mx-auto sm:border-x border-zinc-200 shadow-xl">
       {gameState === "MAP" && (
-        <MapScreen onStartLevel={startLevel} unlockedLevel={maxUnlockedLevel} />
+        <MapScreen
+          onStartLevel={startLevel}
+          unlockedLevel={maxUnlockedLevel}
+          initialScroll={mapScroll}
+          onSaveScroll={setMapScroll}
+        />
       )}
       {gameState === "QUIZ" && (
         <QuizScreen
