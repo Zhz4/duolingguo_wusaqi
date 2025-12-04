@@ -640,7 +640,13 @@ function QuizScreen({
  * - 胜利动画：替换 🎉 🐰 🎉 为 GIF 或 Lottie 动画。
  * - 奖励图标：替换 🥕 为真实的胡萝卜素材。
  */
-function VictoryScreen({ onContinue }: { onContinue: () => void }) {
+function VictoryScreen({
+  onContinue,
+  isFinalWin,
+}: {
+  onContinue: () => void;
+  isFinalWin?: boolean;
+}) {
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-[#FFD057] text-[#5C3D2E] p-8 text-center">
       {/* [素材替换] 胜利动画 */}
@@ -650,7 +656,9 @@ function VictoryScreen({ onContinue }: { onContinue: () => void }) {
         🎉
       </div>
 
-      <h1 className="text-3xl font-bold text-[#FF9600] mb-4">关卡完成！</h1>
+      <h1 className="text-3xl font-bold text-[#FF9600] mb-4">
+        {isFinalWin ? "恭喜通关！" : "关卡完成！"}
+      </h1>
 
       <div className="bg-white/20 p-6 rounded-2xl border-2 border-[#FFFFFF40] backdrop-blur-sm mb-8">
         <div className="text-xl font-bold mb-2">+50 XP</div>
@@ -659,6 +667,24 @@ function VictoryScreen({ onContinue }: { onContinue: () => void }) {
           <span>🥕</span> <span>+10 根胡萝卜</span>
         </div>
       </div>
+
+      {/* 通关特别奖励图片展示 */}
+      {isFinalWin && (
+        <div className="mb-8 animate-pulse">
+          <p className="text-lg font-bold text-[#E64425] mb-3">
+            🏆 获得最终通关大奖！
+          </p>
+          <div className="relative w-48 h-48 mx-auto bg-white rounded-xl shadow-lg border-4 border-[#E64425] overflow-hidden">
+            {/* [素材替换] 这里放置最终通关的奖励图片 */}
+            <Image
+              src="/images/wsq-1.png"
+              alt="最终奖励"
+              fill
+              className="object-contain p-2"
+            />
+          </div>
+        </div>
+      )}
 
       <div className="w-full max-w-xs space-y-4">
         <button
@@ -738,7 +764,13 @@ export default function GamePage() {
         />
       )}
       {gameState === "VICTORY" && (
-        <VictoryScreen onContinue={handleBackToMap} />
+        <VictoryScreen
+          onContinue={handleBackToMap}
+          isFinalWin={
+            currentPlayingLevel ===
+            Math.ceil(questions.length / QUESTIONS_PER_LEVEL)
+          }
+        />
       )}
     </main>
   );
