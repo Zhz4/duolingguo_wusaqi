@@ -26,7 +26,8 @@ export const questions = [
       correct: "B", // 正确答案
       // 以下字段为答对后需要播放/显示的内容（三选一或组合使用）
       audio: null, // 答对后播放的音频文件路径
-      video: "/videos/题目一/题目一答案.mp4", // 答对后播放的视频文件路径
+      video:
+        "https://oa.yswg.com.cn/database/other/mp4/20251205/题目一答案_20251205120917.mp4", // 答对后播放的视频文件路径
       image: null, // 答对后显示的图片文件路径
     },
   },
@@ -62,7 +63,8 @@ export const questions = [
       correct: "B", // 正确答案
       // 以下字段为答对后需要播放/显示的内容（三选一或组合使用）
       audio: null, // 答对后播放的音频文件路径
-      video: "/videos/题目二/吃到好吃的.mp4", // 答对后播放的视频文件路径
+      video:
+        "https://oa.yswg.com.cn/database/other/mp4/20251205/吃到好吃的_20251205121035.mp4", // 答对后播放的视频文件路径
       image: null, // 答对后显示的图片文件路径
     },
   },
@@ -98,7 +100,8 @@ export const questions = [
       correct: "B", // 正确答案
       // 以下字段为答对后需要播放/显示的内容（三选一或组合使用）
       audio: null, // 答对后播放的音频文件路径
-      video: "/videos/题目三/题目三.mp4", // 答对后播放的视频文件路径
+      video:
+        "https://oa.yswg.com.cn/database/other/mp4/20251205/题目三_20251205121108.mp4", // 答对后播放的视频文件路径
       image: null, // 答对后显示的图片文件路径
     },
   },
@@ -134,7 +137,8 @@ export const questions = [
       correct: "B", // 正确答案
       // 以下字段为答对后需要播放/显示的内容（三选一或组合使用）
       audio: null, // 答对后播放的音频文件路径
-      video: "/videos/题目四/三级除草证.mp4", // 答对后播放的视频文件路径
+      video:
+        "https://oa.yswg.com.cn/database/other/mp4/20251205/三级除草证_20251205121130.mp4", // 答对后播放的视频文件路径
       image: null, // 答对后显示的图片文件路径
     },
   },
@@ -170,7 +174,8 @@ export const questions = [
       correct: ["A", "B", "D"], // 正确答案
       // 以下字段为答对后需要播放/显示的内容（三选一或组合使用）
       audio: null, // 答对后播放的音频文件路径
-      video: "/videos/题目五/超级庆典讨伐大鸟奇美拉.mp4", // 答对后播放的视频文件路径
+      video:
+        "https://oa.yswg.com.cn/database/other/mp4/20251205/超级庆典讨伐大鸟奇美拉_20251205121149.mp4", // 答对后播放的视频文件路径
       image: null, // 答对后显示的图片文件路径
     },
   },
