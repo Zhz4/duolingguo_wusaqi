@@ -3,7 +3,7 @@ export const questions = [
     question: {
       text: "该叫声可能出现的场景是？",
       video: "",
-      audio: "/audios/test.mp3",
+      audio: "/audios/题目一/第一题音效.MP3",
     },
     options: [
       {
@@ -26,7 +26,7 @@ export const questions = [
       correct: "B", // 正确答案
       // 以下字段为答对后需要播放/显示的内容（三选一或组合使用）
       audio: null, // 答对后播放的音频文件路径
-      video: "/videos/1.mp4", // 答对后播放的视频文件路径
+      video: "/videos/题目一/题目一答案.mp4", // 答对后播放的视频文件路径
       image: null, // 答对后显示的图片文件路径
     },
   },
@@ -34,7 +34,7 @@ export const questions = [
     question: {
       text: "该音频最可能出现在什么情境？",
       video: "",
-      audio: "/audios/test.mp3",
+      audio: "/audios/题目二/吃到好吃的.MP3",
     },
     options: [
       {
@@ -62,15 +62,15 @@ export const questions = [
       correct: "B", // 正确答案
       // 以下字段为答对后需要播放/显示的内容（三选一或组合使用）
       audio: null, // 答对后播放的音频文件路径
-      video: null, // 答对后播放的视频文件路径
+      video: "/videos/题目二/吃到好吃的.mp4", // 答对后播放的视频文件路径
       image: null, // 答对后显示的图片文件路径
     },
   },
   {
     question: {
       text: "在 “奥德和牢狱篇” 中，乌萨奇在监狱里主要做了什么事来准备逃脱？",
-      video: "",
-      audio: "/audios/test.mp3",
+      video: null,
+      audio: null,
     },
     options: [
       {
@@ -98,7 +98,7 @@ export const questions = [
       correct: "B", // 正确答案
       // 以下字段为答对后需要播放/显示的内容（三选一或组合使用）
       audio: null, // 答对后播放的音频文件路径
-      video: "/videos/1.mp4", // 答对后播放的视频文件路径
+      video: "/videos/题目三/题目三.mp4", // 答对后播放的视频文件路径
       image: null, // 答对后显示的图片文件路径
     },
   },
@@ -134,8 +134,8 @@ export const questions = [
       correct: "B", // 正确答案
       // 以下字段为答对后需要播放/显示的内容（三选一或组合使用）
       audio: null, // 答对后播放的音频文件路径
-      video: null, // 答对后播放的视频文件路径
-      image: "/images/wsq-1.png", // 答对后显示的图片文件路径
+      video: "/videos/题目四/三级除草证.mp4", // 答对后播放的视频文件路径
+      image: null, // 答对后显示的图片文件路径
     },
   },
   {
@@ -170,7 +170,7 @@ export const questions = [
       correct: ["A", "B", "D"], // 正确答案
       // 以下字段为答对后需要播放/显示的内容（三选一或组合使用）
       audio: null, // 答对后播放的音频文件路径
-      video: "/videos/1.mp4", // 答对后播放的视频文件路径
+      video: "/videos/题目五/超级庆典讨伐大鸟奇美拉.mp4", // 答对后播放的视频文件路径
       image: null, // 答对后显示的图片文件路径
     },
   },
@@ -201,7 +201,7 @@ export const questions = [
       correct: "B", // 正确答案
       // 以下字段为答对后需要播放/显示的内容（三选一或组合使用）
       audio: null, // 答对后播放的音频文件路径
-      video: "/videos/1.mp4", // 答对后播放的视频文件路径
+      video: null, // 答对后播放的视频文件路径
       image: null, // 答对后显示的图片文件路径
     },
   },

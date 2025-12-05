@@ -5,6 +5,7 @@ import { questions } from "../question";
 // 注意：虽然导入了 Image 组件，但在下面的代码中为了演示方便使用了 <div> 占位。
 // 如果你有真实的图片资源，请取消注释相关代码并使用 <Image /> 组件。
 import Image from "next/image";
+import Confetti from "react-confetti";
 
 // --- 类型定义 ---
 type GameState = "MAP" | "QUIZ" | "VICTORY";
@@ -648,57 +649,66 @@ function VictoryScreen({
   isFinalWin?: boolean;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center h-screen bg-[#FFD057] text-[#5C3D2E] p-8 text-center">
-      {/* [素材替换] 胜利动画 */}
-      <div className="text-6xl mb-8 animate-bounce flex items-center">
-        🎉{" "}
-        <Image src="/images/wsq-1.png" alt="乌萨奇" width={100} height={100} />{" "}
-        🎉
-      </div>
+    <div className="flex flex-col items-center justify-center h-screen bg-[#FFD057] text-[#5C3D2E] p-8 text-center relative">
+      {isFinalWin && <Confetti />}
 
-      <h1 className="text-3xl font-bold text-[#FF9600] mb-4">
-        {isFinalWin ? "恭喜通关！" : "关卡完成！"}
-      </h1>
-
-      <div className="bg-white/20 p-6 rounded-2xl border-2 border-[#FFFFFF40] backdrop-blur-sm mb-8">
-        <div className="text-xl font-bold mb-2">+50 XP</div>
-        <div className="flex items-center justify-center gap-2 text-yellow-700">
-          {/* [素材替换] 奖励图标 */}
-          <span>🥕</span> <span>+10 根胡萝卜</span>
+      <div className="relative z-10 flex flex-col items-center w-full max-w-md">
+        {/* [素材替换] 胜利动画 */}
+        <div className="text-6xl mb-8 animate-bounce flex items-center">
+          🎉{" "}
+          <Image
+            src="/images/wsq-1.png"
+            alt="乌萨奇"
+            width={100}
+            height={100}
+          />{" "}
+          🎉
         </div>
-      </div>
 
-      {/* 通关特别奖励图片展示 */}
-      {isFinalWin && (
-        <div className="mb-8 animate-pulse">
-          <p className="text-lg font-bold text-[#E64425] mb-3">
-            🏆 获得最终通关大奖！
-          </p>
-          <div className="relative w-48 h-48 mx-auto bg-white rounded-xl shadow-lg border-4 border-[#E64425] overflow-hidden">
-            {/* [素材替换] 这里放置最终通关的奖励图片 */}
-            <Image
-              src="/images/wsq-1.png"
-              alt="最终奖励"
-              fill
-              className="object-contain p-2"
-            />
+        <h1 className="text-3xl font-bold text-[#FF9600] mb-4">
+          {isFinalWin ? "恭喜通关！" : "关卡完成！"}
+        </h1>
+
+        <div className="bg-white/20 p-6 rounded-2xl border-2 border-[#FFFFFF40] backdrop-blur-sm mb-8 w-full">
+          <div className="text-xl font-bold mb-2">+50 XP</div>
+          <div className="flex items-center justify-center gap-2 text-yellow-700">
+            {/* [素材替换] 奖励图标 */}
+            <span>🥕</span> <span>+10 根胡萝卜</span>
           </div>
         </div>
-      )}
 
-      <div className="w-full max-w-xs space-y-4">
-        <button
-          onClick={onContinue}
-          className="w-full bg-[#FF4B4B] text-white py-3 rounded-xl font-bold text-lg border-b-4 border-[#D33333] hover:bg-[#D33333] transition-colors"
-        >
-          继续
-        </button>
-        <button
-          onClick={onContinue}
-          className="w-full bg-white text-[#5C3D2E] py-3 rounded-xl font-bold text-lg border-b-4 border-gray-200 hover:bg-gray-50 transition-colors"
-        >
-          回顾
-        </button>
+        {/* 通关特别奖励图片展示 */}
+        {isFinalWin && (
+          <div className="mb-8 animate-pulse">
+            <p className="text-lg font-bold text-[#E64425] mb-3">
+              🏆 获得最终通关大奖！
+            </p>
+            <div className="relative w-48 h-48 mx-auto bg-white rounded-xl shadow-lg border-4 border-[#E64425] overflow-hidden">
+              {/* [素材替换] 这里放置最终通关的奖励图片 */}
+              <Image
+                src="/images/wsq-1.png"
+                alt="最终奖励"
+                fill
+                className="object-contain p-2"
+              />
+            </div>
+          </div>
+        )}
+
+        <div className="w-full max-w-xs space-y-4">
+          <button
+            onClick={onContinue}
+            className="w-full bg-[#FF4B4B] text-white py-3 rounded-xl font-bold text-lg border-b-4 border-[#D33333] hover:bg-[#D33333] transition-colors"
+          >
+            继续
+          </button>
+          <button
+            onClick={onContinue}
+            className="w-full bg-white text-[#5C3D2E] py-3 rounded-xl font-bold text-lg border-b-4 border-gray-200 hover:bg-gray-50 transition-colors"
+          >
+            回顾
+          </button>
+        </div>
       </div>
     </div>
   );
