@@ -291,6 +291,12 @@ function QuizScreen({
     setIsCorrect(correct);
     setShowFeedback(true);
 
+    // 播放对/错音效
+    const effectAudio = new Audio(
+      correct ? "/audios/correct.wav" : "/audios/incorrect.wav"
+    );
+    effectAudio.play().catch((e) => console.log("音效播放失败:", e));
+
     // 如果答对了，播放答案中的音频/视频/图片
     if (correct) {
       // 播放音频
