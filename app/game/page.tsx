@@ -692,7 +692,7 @@ function VictoryScreen({
             <div className="relative w-48 h-48 mx-auto bg-white rounded-xl shadow-lg border-4 border-[#E64425] overflow-hidden">
               {/* [素材替换] 这里放置最终通关的奖励图片 */}
               <Image
-                src="/images/wsq-1.png"
+                src="/images/奖励.jpg"
                 alt="最终奖励"
                 fill
                 className="object-contain p-2"

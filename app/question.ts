@@ -109,7 +109,7 @@ export const questions = [
     question: {
       text: "乌萨奇的除草检定等级是多少？",
       video: "",
-      audio: "/audios/test.mp3",
+      audio: null,
     },
     options: [
       {
